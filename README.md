@@ -10,7 +10,8 @@ Movement is commanded through an H-bridge and PWM.
 ## Table of Contents
 
 - [Overview](#overview)  
-- [Features](#features)  
+- [Features](#features)
+- [3D Models & Bill of Materials](#3d-models--bill-of-materials)    
 - [Prerequisites](#prerequisites)  
 - [Installation](#installation)  
 - [Configuration](#configuration)  
@@ -49,6 +50,35 @@ All parameters (pins, HSV, sensor mapping, weights, limits, camera) live in **co
 - **Dynamic logging** of sensor labels & distances (e.g. `F=12.3 cm | R=45.6 cm`)  
 - **Config-driven**: every pin, limit, weight, label and mapping in YAML  
 - **Systemd service** for auto-start on boot  
+
+---
+
+## 3D Models & Bill of Materials
+
+All custom parts live in the [`3D/`](3D/) folder, in both CAD (STEP, FCStd) and mesh (STL) formats.
+
+| Model                 | File                          | Description                       | Qty |
+|-----------------------|-------------------------------|-----------------------------------|-----|
+| Chassis Base          | `3D/parts/chassis.stl`        | Main chassis platform             | 1   |
+| Sensor Bracket        | `3D/parts/sensor_mount.stl`   | Ultrasonic sensor mount           | 8   |
+| Motor Mount Plate     | `3D/parts/motor_mount.stl`    | DC motor mounting plate           | 4   |
+| Full Assembly (STEP)  | `3D/assemblies/assembly.step` | Complete assembly for CAD import  | 1   |
+
+### Recommended Print Settings
+
+- **Material:** PLA or PETG  
+- **Layer height:** 0.2 mm  
+- **Infill:** 20 %  
+- **Supports:** Yes, for overhangs > 45°  
+- **Orientation:** Flat on build plate (see `3D/renders/*.png`)
+
+### Additional Hardware
+
+| Item                    | Spec                          | Qty |
+|-------------------------|-------------------------------|-----|
+| M2.5 × 6 mm screws      | Stainless steel               | 16  |
+| M2.5 nuts               | Stainless steel               | 16  |
+| 1 mm foam gasket sheet  | Waterproof seal between parts | 1   |
 
 ---
 
