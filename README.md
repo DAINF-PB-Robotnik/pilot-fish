@@ -53,8 +53,9 @@ All parameters (pins, HSV, sensor mapping, weights, limits, camera) live in **co
 ## Prerequisites
 
 - **Hardware**  
-  - Raspberry Pi 4 + Picamera2  
-  - H-bridge (L298N) + 2 DC motors  
+  - Raspberry Pi 4 + Picamera2
+  - 2 × H-bridge motor drivers (e.g. L298N)  
+  - 4 × DC motors (min. 2 kg·cm torque; model used: JGA25-370 DC 12V 100 RPM)  
   - Arduino Mega + 8 HC-SR04 sensors  
 - **Software**  
   - Raspberry Pi OS (Bullseye or newer)  
@@ -207,5 +208,5 @@ python photo.py
 
 ## License
 
-MIT © 2025 Breno Gabriel Barão Sanchez
+MIT © 2025 
 
