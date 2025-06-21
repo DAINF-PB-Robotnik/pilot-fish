@@ -67,6 +67,16 @@ All parameters (pins, HSV, sensor mapping, weights, limits, camera) live in **co
 
 ## Installation
 
+
+### Quick Start
+
+```bash
+git clone https://github.com/SeuUsuario/Pilot_Fish.git \
+  && cd Pilot_Fish \
+  && chmod +x install.sh \
+  && sudo ./install.sh \
+  && sudo systemctl start start.service
+
 ```bash
 # 1) Clone the repository
 git clone https://github.com/<your-user>/Pilot_Fish.git
