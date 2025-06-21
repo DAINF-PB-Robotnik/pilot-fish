@@ -10,8 +10,9 @@ Movement is commanded through an H-bridge and PWM.
 ## Table of Contents
 
 - [Overview](#overview)  
-- [Features](#features)  
+- [Features](#features)
 - [Prerequisites](#prerequisites)  
+- [3D Models & Bill of Materials](#3d-models--bill-of-materials)    
 - [Installation](#installation)  
 - [Configuration](#configuration)  
 - [File Structure](#file-structure)  
@@ -54,17 +55,55 @@ All parameters (pins, HSV, sensor mapping, weights, limits, camera) live in **co
 
 ## Prerequisites
 
-- **Hardware**  
-  - Raspberry Pi 4 + Picamera2
-  - 2 × H-bridge motor drivers (e.g. L298N)  
-  - 4 × DC motors (min. 2 kg·cm torque; model used: JGA25-370 DC 12V 100 RPM)  
-  - Arduino Mega + 8 HC-SR04 sensors  
-- **Software**  
-  - Raspberry Pi OS (Bullseye or newer)  
-  - Python 3.7+  
-  - GPIO access (`RPi.GPIO`)  
-  - `libcamera`, `python3-opencv`  
-  - Git  
+Before you begin, ensure you have the following hardware and software:
+
+### Hardware
+
+- **Raspberry Pi 4** with camera connector  
+- **Picamera v2** (or HQ Camera)  
+- **2 × H-bridge drivers** (e.g. L298N)  
+- **4 × DC motors** (JGA25-370 DC 12V 100 RPM, ≥ 2 kg·cm torque)  
+- **Arduino Mega** (any Mega-series)  
+- **8 × HC-SR04 ultrasonic sensors**  
+- **Power supply** (12 V for motors, 5 V / 3 A for Pi)  
+- **Jumper wires**, mounting hardware, chassis, wheels
+
+### Software
+
+- **Raspberry Pi OS** (Bullseye or newer)  
+- **Python 3.7+**  
+- System packages:
+  - `python3-venv`  
+  - `python3-pip`  
+  - `python3-opencv`  
+- Python libraries (installed via `pip install -r requirements.txt`):
+  - `picamera2`  
+  - `opencv-python`  
+  - `RPi.GPIO`  
+  - `pyyaml`  
+  - `colorama`  
+  - `pyserial`  
+- **Git** (to clone this repo)  
+- **systemd** (for the `start.service` unit)  
+
+---
+
+## 3D Models & Bill of Materials
+
+All custom parts live in the [`3D/`](3D/) folder, in both CAD (STEP, FCStd) and mesh (STL) formats.
+
+| Model / Hardware       | File / Spec                      | Description                       | Qty |
+|------------------------|----------------------------------|-----------------------------------|-----|
+| **Chassis Base**       | `3D/parts/chassis.stl`           | Main chassis platform             | 1   |
+| **Sensor Bracket**     | `3D/parts/sensor_mount.stl`      | Ultrasonic sensor mount           | 8   |
+| **Motor Mount Plate**  | `3D/parts/motor_mount.stl`       | DC motor mounting plate           | 4   |
+| **Full Assembly**      | `3D/assemblies/assembly.step`    | Complete assembly for CAD import  | 1   |
+| **M2.5×6 mm screws**    | Stainless steel                  | Fasten 3D-printed parts           | 16  |
+| **M2.5 nuts**          | Stainless steel                  | Securing screws                   | 16  |
+| **DC Motors**          | JGA25-370 DC 12V 100 RPM, ≥2 kg·cm| Drive wheels                      | 4   |
+| **H-bridge driver**    | L298N or equivalent              | Motor control via PWM             | 2   |
+| **Arduino Mega**       | Any Mega-series                  | Reads 8× HC-SR04 via serial       | 1   |
+| **HC-SR04 sensor**     | Ultrasonic distance sensor       | Obstacle detection                | 8   |
 
 ---
 
