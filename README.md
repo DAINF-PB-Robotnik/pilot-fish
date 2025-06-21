@@ -210,5 +210,4 @@ python photo.py
 
 ## License
 
-MIT © 2025 
-
+This project is licensed under the [MIT License](LICENSE).
