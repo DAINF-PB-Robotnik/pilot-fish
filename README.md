@@ -78,7 +78,6 @@ All custom parts live in the [`3D/`](3D/) folder, in both CAD (STEP, FCStd) and 
 |-------------------------|-------------------------------|-----|
 | M2.5 × 6 mm screws      | Stainless steel               | 16  |
 | M2.5 nuts               | Stainless steel               | 16  |
-| 1 mm foam gasket sheet  | Waterproof seal between parts | 1   |
 
 ---
 
