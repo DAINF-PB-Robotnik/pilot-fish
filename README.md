@@ -1,6 +1,6 @@
 # Pilot Fish
 
-An autonomous Raspberry Pi 4 rover that **follows** a colored object (“fish”) in an aquarium using computer vision, and **avoids** obstacles via 8 ultrasonic sensors on an Arduino Mega.
+An autonomous Raspberry Pi 4 rover that **follows** a colored object (“fish”) in an aquarium using computer vision with Python, and **avoids** obstacles via 8 ultrasonic sensors on an Arduino Mega.
 Movement is commanded through an H-bridge and PWM.
 
 ---
