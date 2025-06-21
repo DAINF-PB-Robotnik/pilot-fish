@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+# install.sh
+# Installs system and Python dependencies for Pilot Fish project.
+
+set -euo pipefail
+
+# 1) Install required system packages
+echo "Updating package lists..."
+sudo apt update
+echo "Installing system packages..."
+sudo apt install -y python3-venv python3-pip python3-opencv libatlas-base-dev libhdf5-serial libqtgui4 libqt4-test
+
+# 2) Create Python virtual environment if it doesn't exist
+if [ ! -d ".venv" ]; then
+  echo "Creating Python virtual environment..."
+  python3 -m venv .venv
+fi
+
+# 3) Activate the virtual environment
+# shellcheck disable=SC1091
+source .venv/bin/activate
+
+# 4) Upgrade pip and install Python dependencies
+echo "Upgrading pip..."
+pip install --upgrade pip
+echo "Installing Python dependencies from requirements.txt..."
+pip install -r requirements.txt
+
+echo "✅ All dependencies installed. Activate the venv with:"
+echo "   source .venv/bin/activate"

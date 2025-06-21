@@ -1,0 +1,39 @@
+motor:
+  left_pins:     [17, 27]
+  right_pins:    [23, 24]
+  pwm_pins:      [18, 25]
+
+sensor:
+  front_pins:     [5, 6]
+  rear_pins:      [13, 19]
+  timeout_s:      0.02
+  poll_interval_s: 1.0
+
+tracker:
+  hsv_lower:     [90, 50, 50]
+  hsv_upper:     [130, 255, 255]
+  kernel_size:   [5, 5]
+
+draw:
+  grid_color:        [0, 255, 0]
+  text_color:        [0, 0, 0]
+  fps_color:         [0, 0, 0]
+  font_scale:        0.7
+  thickness:         2
+  quadrant_labels:
+    - ["Up-Left",   "Up",      "Up-Right"]
+    - ["Left",      "Center",  "Right"]
+    - ["Down-Left", "Down",    "Down-Right"]
+
+control:
+  proximity_limit_cm: 50.0
+
+camera:
+  # 0, 90, 180 or 270 degrees
+  rotation: 270 
+  format:       "XRGB8888"
+  resolution:   [640, 480]
+  framerate:    30
+
+logging:
+  level:        "INFO"

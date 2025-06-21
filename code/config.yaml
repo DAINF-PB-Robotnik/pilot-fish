@@ -1,0 +1,62 @@
+# Motor driver pins
+motor:
+  left_pins:     [17, 27]
+  right_pins:    [23, 24]
+  pwm_pins:      [18, 25]
+
+# HSV tracker settings
+tracker:
+  hsv_lower:     [90, 50, 50]
+  hsv_upper:     [130, 255, 255]
+  kernel_size:   [5, 5]
+
+# Draw settings
+draw:
+  grid_color:        [0, 255, 0]
+  text_color:        [0, 0, 0]
+  fps_color:         [0, 0, 0]
+  font_scale:        0.7
+  thickness:         2
+  quadrant_labels:
+    - ["Up-Left",   "Up",      "Up-Right"]
+    - ["Left",      "Center",  "Right"]
+    - ["Down-Left", "Down",    "Down-Right"]
+
+# Control parameters
+control:
+  proximity_limit_cm: 50.0
+
+# Camera settings
+camera:
+  rotation:   90
+  format:     "XRGB8888"
+  resolution: [640, 480]
+  framerate:  30
+
+# Logging level
+logging:
+  level:      "INFO"
+
+# Serial port for Arduino Mega
+serial:
+  port:        "/dev/ttyACM0"
+  baudrate:    115200
+  timeout_s:   1.0
+
+# Polling configuration for serial sensors
+sensor_read:
+  num_sensors: 8
+  interval_s:  0.2
+  labels:      ["F","FR","R","BR","B","BL","L","FL"]
+
+# Map each 3×3 cell (row,col) to the Mega’s sensor index
+sensor_map:
+  - [7, 0, 1]
+  - [6, null, 2]
+  - [5, 4, 3]
+
+# Braitenberg behavior parameters
+braitenberg:
+  base_speed:      50
+  weights_left:   [ -0.5, -0.3,  0.0,  0.3,  0.5,  0.3,  0.0, -0.3 ]
+  weights_right:  [  0.5,  0.3,  0.0, -0.3, -0.5, -0.3,  0.0,  0.3 ]
