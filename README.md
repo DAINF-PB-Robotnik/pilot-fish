@@ -197,8 +197,5 @@ python photo.py
 
 ## License
 
-MIT © 2025 Your Name
-
-```
-```
+MIT © 2025 Breno Gabriel Barão Sanchez
 
