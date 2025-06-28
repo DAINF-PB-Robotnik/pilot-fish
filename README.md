@@ -84,7 +84,7 @@ Before you begin, ensure you have the following hardware and software:
   - `colorama`  
   - `pyserial`  
 - **Git** (to clone this repo)  
-- **systemd** (for the `start.service` unit)  
+- **systemd** (for the `fish.service` unit)  
 
 ---
 
@@ -286,8 +286,8 @@ Open windows **MAIN** (with overlays) and **BINARY** (mask).
 ### As a Service
 
 ```bash
-sudo systemctl start start.service
-sudo journalctl -f -u start.service
+sudo systemctl start fish.service
+sudo journalctl -f -u fish.service
 ```
 
 ---
