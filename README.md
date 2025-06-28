@@ -129,7 +129,9 @@ Follow these steps to install and configure **Pilot-Fish** in either **contour**
 
    ```bash
    sudo ./install.sh contour
+   ```
    # — or —
+   ```bash
    sudo ./install.sh yolo
    ```
 
@@ -140,7 +142,7 @@ Follow these steps to install and configure **Pilot-Fish** in either **contour**
    - Install Python dependencies from `code/<mode>/requirements.txt`
    - Generate and enable a `fish.service` systemd unit to launch your chosen mode on boot
 
-4. **Verify and manage the service**
+5. **Verify and manage the service**
 
    - Check status:
      ```bash
