@@ -1,73 +1,65 @@
-from ultralytics import YOLO
-from track import Track
 import cv2
+import time
+import logging
+from ultralytics import YOLO
+from statistics import median
+from collections import deque
 
-# Carregar o modelo treinado
-model = YOLO('best.pt')  #caminho do modelo YOLOv8n treinado
+class Yolov8n:
+    def __init__(self, model_path='/home/user/Pilot_Fish/Versão_Yolo/best.pt', fps_window_s=10.0):
+        self.model = YOLO(model_path)
+        self.prev_time = time.time()
+        self.fps_history = deque()
+        self.fps_window_s = fps_window_s
+        self.last_median_log = self.prev_time
+        self.last_detection = None
+        
+    def track_frame(self, frame):
+        results = self.model(frame)
 
-# Inicializar a câmera 
-camera = cv2.VideoCapture(0)
+        for r in results:
+            for box in r.boxes:
+                cls = int(box.cls[0])
+                conf = float(box.conf[0])
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
 
-class YOLOv8n:
-  while True:
-      ret, frame = camera.read()
-      if not ret:
-          break
+                cx = int((x1 + x2) / 2)
+                cy = int((y1 + y2) / 2)
 
-      # Fazer a inferência com YOLOv8n
-      results = model(frame)
+                self.last_detection = {
+                    'class': cls,
+                    'confidence': conf,
+                    'bbox': (x1, y1, x2, y2),
+                    'center': (cx, cy)
+                }
 
-      # Iterar sobre as detecções
-      for r in results:
-          for box in r.boxes:
-              cls = int(box.cls[0])  # classe detectada (esperamos que seja peixe = 0)
-              conf = float(box.conf[0])  # confiança
-              x1, y1, x2, y2 = map(int, box.xyxy[0])  # coordenadas da caixa
+                return self.last_detection
 
-              # Calcular centro da caixa
-              cx = int((x1 + x2) / 2)
-              cy = int((y1 + y2) / 2)
+        self.last_detection = None
+        return None
 
-              # Desenhar retângulo e centro
-              cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-              cv2.circle(frame, (cx, cy), 5, (0, 0, 255), -1)
+    def center(self):
+        if self.last_detection:
+            return self.last_detection['center']
+        else:
+            return None
 
-              # Mostrar texto com coordenadas
-              text = f"Peixe: {conf:.2f} | Centro: ({cx}, {cy})"
-              cv2.putText(frame, text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+    def track_fps(self):
+        now = time.time()
+        inst = 1.0 / (now - self.prev_time) if now > self.prev_time else 0.0
+        self.prev_time = now
 
-      # Mostrar o frame
-      cv2.imshow("Rastreamento de Peixe", frame)
+        self.fps_history.append((now, inst))
+        while self.fps_history and now - self.fps_history[0][0] > self.fps_window_s:
+            self.fps_history.popleft()
 
-      if cv2.waitKey(1) & 0xFF == ord('q'):
-          break
+        med = None
+        if now - self.last_median_log >= self.fps_window_s:
+            vals = [f for (_, f) in self.fps_history]
+            if vals:
+                med = median(vals)
+                logging.info(f"FPS Medio (últimos {self.fps_window_s}s): {med:.1f}")
+            self.last_median_log = now
 
-  # Encerrar
-  camera.release()
-  cv2.destroyAllWindows()
+        return inst, med
 
- def track_fps(self):
-        """
-        Call once per frame. Returns (instant_fps, median_fps_or_None),
-        logging median only every fps_window_s seconds.
-        """
-      now = time.time()
-        # instantaneous
-      inst = 1.0/(now - self.prev_time) if now>self.prev_time else 0.0
-      self.prev_time = now
-
-        # history
-      self.fps_history.append((now, inst))
-      while self.fps_history and now - self.fps_history[0][0] > self.fps_window_s:
-          self.fps_history.popleft()
-
-        # median every window
-      med = None
-      if now - self.last_median_log >= self.fps_window_s:
-          vals = [f for (_,f) in self.fps_history]
-          if vals:
-              med = median(vals)
-              logging.info(f"Median FPS (last {self.fps_window_s}s): {med:.1f}")
-          self.last_median_log = now
-
-return inst, med
