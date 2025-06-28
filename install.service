@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+#
+# =======================================================
+#  Pilot-Fish Project - Unified Installer
+# =======================================================
+#
+# This script performs a complete setup for the specified
+# version ('contour' or 'yolo'). It:
+#   1. Installs all dependencies into a dedicated virtual environment.
+#   2. Creates and configures a systemd service named 'fish.service'.
+#   3. Enables the service to start automatically on boot.
+#
+# Usage: sudo ./install <version>
+# Example: sudo ./install contour
+#
+# =======================================================
+
+set -euo pipefail
+
+# --- Configuration & Helper Functions ---
+MODE=$1
+PROJECT_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+# Adapt to your specific username. 'user' is based on your previous service file.
+APP_USER="user"
+# --- CHANGED: Service name is now 'fish.service' ---
+SERVICE_NAME="fish.service"
+
+log() { echo -e "\n[INFO] $1"; }
+error() { echo -e "\n[ERROR] $1" >&2; exit 1; }
+
+# --- Main Logic ---
+
+# 1. Validation
+if [[ "$EUID" -ne 0 ]]; then error "This script must be run as root. Use 'sudo ./install <version>'"; fi
+if [[ -z "$MODE" || ("$MODE" != "contour" && "$MODE" != "yolo") ]]; then
+    echo "Usage: sudo $0 <version>"
+    echo "Available versions: 'contour', 'yolo'"
+    exit 1
+fi
+
+log "Starting complete setup for the '$MODE' version..."
+
+# 2. System Dependencies
+log "Installing system packages..."
+apt-get update && apt-get install -y python3-venv python3-pip python3-opencv libcamera-utils libatlas-base-dev || error "System package installation failed."
+
+# 3. Python Virtual Environment
+REQUIREMENTS_FILE="$PROJECT_ROOT/code/${MODE}/requirements.txt"
+VENV_DIR="$PROJECT_ROOT/.venv_${MODE}"
+PYTHON_EXEC="$VENV_DIR/bin/python" # Path to Python inside the venv
+
+if [ ! -f "$REQUIREMENTS_FILE" ]; then error "Requirements file not found: $REQUIREMENTS_FILE"; fi
+if [ -d "$VENV_DIR" ]; then log "Re-creating virtual environment for a clean install."; rm -rf "$VENV_DIR"; fi
+log "Creating Python virtual environment..."
+python3 -m venv "$VENV_DIR"
+log "Installing Python packages from $REQUIREMENTS_FILE..."
+# shellcheck disable=SC1091
+source "$VENV_DIR/bin/activate"
+pip install --upgrade pip
+pip install -r "$REQUIREMENTS_FILE" || error "Python package installation failed."
+deactivate
+
+# 4. Create and Configure systemd Service
+log "Configuring service to run '$MODE' on boot..."
+SERVICE_DEST="/etc/systemd/system/${SERVICE_NAME}"
+MAIN_SCRIPT_PATH="$PROJECT_ROOT/code/${MODE}/main.py"
+XAUTH_PATH="/home/${APP_USER}/.Xauthority"
+
+# This 'cat' command writes the configuration directly into the service file.
+cat > "$SERVICE_DEST" << EOF
+[Unit]
+Description=Pilot-Fish Robot (${MODE} version)
+After=graphical.target
+
+[Service]
+Type=simple
+User=${APP_USER}
+Group=${APP_USER}
+
+# Environment for GUI applications
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=${XAUTH_PATH}
+
+# Execute main.py using the correct virtual environment's Python
+ExecStart=${PYTHON_EXEC} ${MAIN_SCRIPT_PATH}
+
+WorkingDirectory=${PROJECT_ROOT}
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=graphical.target
+EOF
+
+chmod 644 "$SERVICE_DEST"
+
+# 5. Enable and Start Service
+log "Reloading systemd daemon, enabling and starting the service..."
+systemctl daemon-reload
+systemctl enable "$SERVICE_NAME"
+systemctl restart "$SERVICE_NAME"
+
+# --- CHANGED: Final messages updated as requested ---
+log "✅ Setup complete!"
+log "The pilot fish will now automatically run the '$MODE' code on boot."
+log "To check the status, run: systemctl status $SERVICE_NAME"
+log "To view live logs, run:   journalctl -u $SERVICE_NAME -f"
+log "To manually stop/start the service, use:"
+echo "  sudo systemctl stop ${SERVICE_NAME}"
+echo "  sudo systemctl start ${SERVICE_NAME}"
