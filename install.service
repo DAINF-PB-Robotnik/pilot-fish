@@ -20,7 +20,7 @@ set -euo pipefail
 # --- Configuration & Helper Functions ---
 MODE=$1
 PROJECT_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
-# Adapt to your specific username. 'user' is based on your previous service file.
+# Adapt to your specific username. 'user' is based on your service file.
 APP_USER="user"
 # --- CHANGED: Service name is now 'fish.service' ---
 SERVICE_NAME="fish.service"
