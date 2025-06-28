@@ -2,7 +2,7 @@
  * @file ultrasonic_8_sensor_array.ino
  * @brief Reads 8 HC-SR04 ultrasonic sensors sequentially on an Arduino Mega.
  *
- * This firmware is designed to run on an Arduino Mega. It continuously measures
+ * This firmware is designed to run on an Arduino Mega 2560. It continuously measures
  * distances from 8 ultrasonic sensors and sends the collected data over USB
  * serial when it receives a specific character ('R') from the host.
  *
