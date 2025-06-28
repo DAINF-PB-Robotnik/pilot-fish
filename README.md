@@ -130,7 +130,7 @@ Follow these steps to install and configure **Pilot-Fish** in either **contour**
    ```bash
    sudo ./install.sh contour
    ```
-   **— or —**
+   **— OR —**
    ```bash
    sudo ./install.sh yolo
    ```
@@ -160,13 +160,13 @@ Follow these steps to install and configure **Pilot-Fish** in either **contour**
 
 ---
 
-### Quick One-Line Installs
+## Quick One-Line Installs
 
-# Contour mode:
+### Contour mode:
 ```bash
 git clone https://github.com/DAINF-PB-Robotnik/pilot-fish.git && cd pilot-fish && chmod +x install.sh && sudo ./install.sh contour
 ```
-# YOLO mode:
+### YOLO mode:
 ```bash
 git clone https://github.com/DAINF-PB-Robotnik/pilot-fish.git && cd pilot-fish && chmod +x install.sh && sudo ./install.sh yolo
 ```
