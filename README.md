@@ -187,21 +187,52 @@ sudo systemctl restart start.service
 ## File Structure
 
 ```
-Pilot_Fish/
-├── install.sh          # System & Python installer
-├── config.yaml         # All parameters & mappings
-├── config.py           # Loads YAML → constants & helpers
-├── main.py             # Orchestrates capture, track, control, draw, display
-├── track.py            # Fish detection (HSV, contour, ROI, FPS)
-├── draw.py             # Grid + rotated labels + overlay
-├── control.py          # Avoidance + fish-follow logic
-├── direction.py        # Motor commands + drive() for Braitenberg
-├── sensor.py           # Serial reader for 8 HC-SR04 via Arduino
-├── pwm.py              # PWM wrapper
-├── motor.py            # H-bridge motor interface
-├── photo.py            # Dataset photo capture script
-├── start.service       # systemd unit (installed to /etc/systemd/system)
-└── requirements.txt    # Python dependencies
+3D/                        # 3D printable parts (Fusion 360 and STL files)
+├── F3D/                   # Editable Fusion 360 files
+├── STL/                   # Exported STL models for 3D printing
+
+circuit/                  # Schematics and diagrams
+├── fish.fzz              # Editable Fritzing project
+├── fish.png              # Circuit image
+
+code/
+├── contour/              # HSV + contour-based tracking
+│   ├── config.py         # YAML parser and utility functions
+│   ├── config.yaml       # Configuration for contour mode
+│   ├── control.py        # Avoidance and tracking logic
+│   ├── direction.py      # Motor control logic
+│   ├── draw.py           # Grid and overlay rendering
+│   ├── main.py           # Entry point for contour version
+│   ├── motor.py          # H-bridge interface
+│   ├── pwm.py            # PWM helper class
+│   ├── requirements.txt  # Python dependencies
+│   ├── sensor.py         # Reads sensors from Arduino
+│   ├── track.py          # Contour-based tracking logic
+│   └── view_requirements.sh  # Shows installed packages
+├── yolo/                 # YOLOv8-based tracking
+│   ├── best.pt           # YOLOv8 weights
+│   ├── config.py         # YAML parser and utility functions
+│   ├── config.yaml       # Configuration for yolo mode
+│   ├── control.py        # Avoidance and tracking logic
+│   ├── direction.py      # Motor control logic
+│   ├── draw.py           # Grid and overlay rendering
+│   ├── main.py           # Entry point for yolo version
+│   ├── motor.py          # H-bridge interface
+│   ├── photo.py          # Dataset photo capture
+│   ├── pwm.py            # PWM helper class
+│   ├── requirements.txt  # Python dependencies
+│   ├── sensor.py         # Reads sensors from Arduino
+│   ├── track.py          # YOLOv8-based tracking logic
+│   ├── light/            # Light condition photos (omitted)
+│   ├── normal/           # Normal condition photos (omitted)
+│   └── shake/            # Shaking condition photos (omitted)
+├── mega/
+│   └── mega.ino          # Arduino sketch for ultrasonic sensors
+
+install.sh                # Unified installer script for contour/yolo
+install.service           # Legacy service example (not required)
+LICENSE                   # MIT License
+README.md                 # This documentation
 ```
 
 ---
