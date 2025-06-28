@@ -1,62 +1,78 @@
+# config.yaml
+
 # Motor driver pins
 motor:
-  left_pins:     [17, 27]
-  right_pins:    [23, 24]
-  pwm_pins:      [18, 25]
+  left_pins: [17, 27]
+  right_pins: [23, 24]
+  pwm_pins: [18, 25]
 
-# HSV tracker settings
+# Tracker settings
 tracker:
-  hsv_lower:     [90, 50, 50]
-  hsv_upper:     [130, 255, 255]
-  kernel_size:   [5, 5]
+  hsv_lower: [90, 50, 50]
+  hsv_upper: [130, 255, 255]
+  kernel_size: [5, 5]
 
 # Draw settings
 draw:
-  grid_color:        [0, 255, 0]
-  text_color:        [0, 0, 0]
-  fps_color:         [0, 0, 0]
-  font_scale:        0.7
-  thickness:         2
+  grid_color: [0, 255, 0]
+  text_color: [0, 0, 0]
+  fps_color: [0, 0, 0]
+  font_scale: 0.7
+  thickness: 2
   quadrant_labels:
-    - ["Up-Left",   "Up",      "Up-Right"]
-    - ["Left",      "Center",  "Right"]
-    - ["Down-Left", "Down",    "Down-Right"]
+    - ["Up-Left", "Up", "Up-Right"]
+    - ["Left", "Center", "Right"]
+    - ["Down-Left", "Down", "Down-Right"]
 
-# Control parameters
 control:
-  proximity_limit_cm: 50.0
+  proximity_limit_cm:       40.0    # cm at which we consider “blocked”
+  sensor_smoothing_alpha:    0.5    # 0 = raw instant, 1 = fully smoothed
+  centroid_smoothing_alpha:  0.15   # for fish‐centroid smoothing
+  state_debounce_s:          0.3    # min seconds between state changes
+  clear_threshold:           3      # AVOID cycles before returning to FOLLOW
+  critical_distance_cm:     20.0    # cm for immediate hard‐stop→AVOID
+
+  # new parameters for minimal AVOID duration
+  avoid_min_time_s:         2.0     # seconds to stay in AVOID before allowing FOLLOW
+
+  # dynamic sensor‐read interval bounds
+  base_sensor_interval_s:   0.20   # “normal” read interval (s)
+  min_sensor_interval_s:    0.05   # fastest interval when very close
+
+
+
 
 # Camera settings
 camera:
-  rotation:   90
-  format:     "XRGB8888"
+  rotation: 90
+  format: "XRGB8888"
   resolution: [640, 480]
-  framerate:  30
+  framerate: 30
 
 # Logging level
 logging:
-  level:      "INFO"
+  level: "INFO"
 
 # Serial port for Arduino Mega
 serial:
-  port:        "/dev/ttyACM0"
-  baudrate:    115200
-  timeout_s:   1.0
+  port: "/dev/ttyACM0"
+  baudrate: 115200
+  timeout_s: 1.0
 
-# Polling configuration for serial sensors
+# Sensor polling
 sensor_read:
   num_sensors: 8
-  interval_s:  0.2
-  labels:      ["F","FR","R","BR","B","BL","L","FL"]
+  interval_s: 0.2
+  labels: ["F","FR","R","BR","B","BL","L","FL"]
 
-# Map each 3×3 cell (row,col) to the Mega’s sensor index
+# Sensor map
 sensor_map:
   - [7, 0, 1]
   - [6, null, 2]
   - [5, 4, 3]
 
-# Braitenberg behavior parameters
+# Braitenberg parameters
 braitenberg:
-  base_speed:      50
-  weights_left:   [ -0.5, -0.3,  0.0,  0.3,  0.5,  0.3,  0.0, -0.3 ]
-  weights_right:  [  0.5,  0.3,  0.0, -0.3, -0.5, -0.3,  0.0,  0.3 ]
+  base_speed: 50.0
+  weights_left: [ -0.5, -0.3, 0.0, 0.3, 0.5, 0.3, 0.0, -0.3 ]
+  weights_right: [ 0.5, 0.3, 0.0, -0.3, -0.5, -0.3, 0.0, 0.3 ]

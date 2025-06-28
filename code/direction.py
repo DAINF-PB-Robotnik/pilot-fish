@@ -1,85 +1,106 @@
+# direction.py
+
+import time
 import logging
 from motor import Motor
 from pwm   import Pwm
-from config import MOTOR_LEFT_PINS, MOTOR_RIGHT_PINS, PWM_PINS
+from config import PWM_PINS, MOTOR_LEFT_PINS, MOTOR_RIGHT_PINS
 
-# instantiate once
+# Motor instances
 _left_motor  = Motor(*MOTOR_LEFT_PINS)
 _right_motor = Motor(*MOTOR_RIGHT_PINS)
 _left_pwm    = Pwm(PWM_PINS[0])
 _right_pwm   = Pwm(PWM_PINS[1])
 
 class Direction:
+    """
+    Motor control with internal ramping to smooth transitions.
+    """
+    # Last commanded speeds for ramping
+    _last_left = 0.0
+    _last_right = 0.0
+    _last_time = time.time()
+    MAX_ACCEL = 100.0  # PWM units per second
+
+    @classmethod
+    def _ramp(cls, target_left: float, target_right: float):
+        now = time.time()
+        dt = now - cls._last_time
+        cls._last_time = now
+
+        max_delta = cls.MAX_ACCEL * dt
+
+        # compute delta for left motor
+        delta_l = target_left - cls._last_left
+        if abs(delta_l) > max_delta:
+            delta_l = max_delta if delta_l > 0 else -max_delta
+        new_l = cls._last_left + delta_l
+
+        # compute delta for right motor
+        delta_r = target_right - cls._last_right
+        if abs(delta_r) > max_delta:
+            delta_r = max_delta if delta_r > 0 else -max_delta
+        new_r = cls._last_right + delta_r
+
+        # apply directions based on sign
+        if new_l >= 0:
+            _left_motor.forward()
+        else:
+            _left_motor.back()
+        if new_r >= 0:
+            _right_motor.forward()
+        else:
+            _right_motor.back()
+
+        # set PWM duty cycles (abs, clamped)
+        _left_pwm.set(min(abs(new_l), 100))
+        _right_pwm.set(min(abs(new_r), 100))
+
+        # save for next ramp
+        cls._last_left = new_l
+        cls._last_right = new_r
+
     @staticmethod
-    def forward(speed: int = 100):
+    def forward(speed: float = 100.0):
         logging.info("Forward")
-        _left_motor.forward();  _right_motor.forward()
-        _left_pwm.set(speed);   _right_pwm.set(speed)
+        Direction._ramp(speed, speed)
 
     @staticmethod
-    def back(speed: int = 100):
+    def back(speed: float = 100.0):
         logging.info("Back")
-        _left_motor.back();     _right_motor.back()
-        _left_pwm.set(speed);   _right_pwm.set(speed)
+        Direction._ramp(-speed, -speed)
 
     @staticmethod
-    def left(speed: int = 100):
+    def left(speed: float = 100.0):
         logging.info("Left")
-        _left_motor.back();     _right_motor.forward()
-        _left_pwm.set(speed);   _right_pwm.set(speed)
+        Direction._ramp(-speed, speed)
 
     @staticmethod
-    def right(speed: int = 100):
+    def right(speed: float = 100.0):
         logging.info("Right")
-        _left_motor.forward();  _right_motor.back()
-        _left_pwm.set(speed);   _right_pwm.set(speed)
+        Direction._ramp(speed, -speed)
 
     @staticmethod
     def stop():
         logging.info("Stop")
-        _left_motor.stop();     _right_motor.stop()
-        _left_pwm.set(0);       _right_pwm.set(0)
+        Direction._ramp(0.0, 0.0)
 
     @staticmethod
-    def up_left(speed: int = 100):
+    def up_left(speed: float = 100.0):
         logging.info("Up-Left")
-        # direct diagonal: both forward, left wheel half speed
-        _left_motor.forward();  _right_motor.forward()
-        _left_pwm.set(speed//2);_right_pwm.set(speed)
+        Direction._ramp(speed/2, speed)
 
     @staticmethod
-    def up_right(speed: int = 100):
+    def up_right(speed: float = 100.0):
         logging.info("Up-Right")
-        # both forward, right wheel half speed
-        _left_motor.forward();  _right_motor.forward()
-        _left_pwm.set(speed);   _right_pwm.set(speed//2)
+        Direction._ramp(speed, speed/2)
 
     @staticmethod
-    def down_left(speed: int = 100):
+    def down_left(speed: float = 100.0):
         logging.info("Down-Left")
-        # both back, left wheel half speed
-        _left_motor.back();     _right_motor.back()
-        _left_pwm.set(speed//2);_right_pwm.set(speed)
+        Direction._ramp(-speed/2, -speed)
 
     @staticmethod
-    def down_right(speed: int = 100):
+    def down_right(speed: float = 100.0):
         logging.info("Down-Right")
-        # both back, right wheel half speed
-        _left_motor.back();     _right_motor.back()
-        _left_pwm.set(speed);   _right_pwm.set(speed//2)
-
-
-    @staticmethod
-    def drive(left_speed: float, right_speed: float):
-        """
-        Braitenberg drive: both motors forward with independent speeds.
-        """
-        logging.info(f"Braitenberg drive: L={left_speed:.1f}% R={right_speed:.1f}%")
-        # set both motors to forward
-        _left_motor.forward()
-        _right_motor.forward()
-        # clamp speeds to [0,100]
-        ls = max(0, min(left_speed, 100))
-        rs = max(0, min(right_speed, 100))
-        _left_pwm.set(ls)
-        _right_pwm.set(rs)
+        Direction._ramp(-speed, -speed/2)
