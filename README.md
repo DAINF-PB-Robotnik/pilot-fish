@@ -109,33 +109,66 @@ All custom parts live in the [`3D/`](3D/) folder, in both CAD (STEP, FCStd) and 
 
 ## Installation
 
+Follow these steps to install and configure **Pilot-Fish** in either **contour** or **YOLO** mode. All you need is the unified `install.sh` script.
 
-### Quick Start
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/DAINF-PB-Robotnik/pilot-fish.git
+   cd pilot-fish
+   ```
+
+2. **Make the installer executable**
+
+   ```bash
+   chmod +x install.sh
+   ```
+
+3. **Run the installer**\
+   Choose either **contour** (color-based) or **yolo** (neural-network) mode:
+
+   ```bash
+   sudo ./install.sh contour
+   # — or —
+   sudo ./install.sh yolo
+   ```
+
+   This will:
+
+   - Install system packages (Python 3, OpenCV, libcamera-utils, Atlas, HDF5, Qt, etc.)
+   - Create a dedicated virtual environment (`.venv_contour` or `.venv_yolo`)
+   - Install Python dependencies from `code/<mode>/requirements.txt`
+   - Generate and enable a `fish.service` systemd unit to launch your chosen mode on boot
+
+4. **Verify and manage the service**
+
+   - Check status:
+     ```bash
+     systemctl status fish.service
+     ```
+   - Watch live logs:
+     ```bash
+     journalctl -u fish.service -f
+     ```
+   - Manually stop or start:
+     ```bash
+     sudo systemctl stop  fish.service
+     sudo systemctl start fish.service
+     ```
+
+---
+
+### Quick One-Line Installs
 
 ```bash
-git clone https://github.com/<your-user>/Pilot_Fish.git \
-  && cd Pilot_Fish \
-  && chmod +x install.sh \
-  && sudo ./install.sh \
-  && sudo systemctl start start.service
-```
-```bash
-# 1) Clone the repository
-git clone https://github.com/<your-user>/Pilot_Fish.git
-cd Pilot_Fish
+# Contour mode:
+git clone https://github.com/DAINF-PB-Robotnik/pilot-fish.git && cd pilot-fish && chmod +x install.sh && sudo ./install.sh contour
 
-# 2) Make the installer executable
-chmod +x install.sh
-
-# 3) Run as root to set up system & Python environment
-sudo ./install.sh
+# YOLO mode:
+git clone https://github.com/DAINF-PB-Robotnik/pilot-fish.git && cd pilot-fish && chmod +x install.sh && sudo ./install.sh yolo
 ```
 
-This will:
 
-* Install system packages (`python3-venv`, `python3-opencv`, etc.)
-* Create a `.venv/` and install Python dependencies from `requirements.txt`
-* Copy & enable `start.service` as a systemd unit that runs at boot
 
 ## Configuration
 
