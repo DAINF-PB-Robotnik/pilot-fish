@@ -160,7 +160,7 @@ Follow these steps to install and configure **Pilot-Fish** in either **contour**
 
 ---
 
-## Quick One-Line Installs
+## Quick Installs
 
 ### Contour mode:
 ```bash
@@ -171,6 +171,7 @@ git clone https://github.com/DAINF-PB-Robotnik/pilot-fish.git && cd pilot-fish &
 git clone https://github.com/DAINF-PB-Robotnik/pilot-fish.git && cd pilot-fish && chmod +x install.sh && sudo ./install.sh yolo
 ```
 
+---
 
 
 ## Configuration
