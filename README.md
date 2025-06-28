@@ -158,8 +158,6 @@ Follow these steps to install and configure **Pilot-Fish** in either **contour**
      sudo systemctl start fish.service
      ```
 
----
-
 ## Quick Installs
 
 ### Contour mode:
