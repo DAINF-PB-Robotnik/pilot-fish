@@ -174,49 +174,59 @@ git clone https://github.com/DAINF-PB-Robotnik/pilot-fish.git && cd pilot-fish &
 
 ## Configuration
 
-Edit **`config.yaml`** to adjust:
+Edit **`config.yaml`** to adjust parameters for serial, sensors, Braitenberg, control, and camera:
 
 ```yaml
-# Serial for Arduino Mega
+# Serial connection to Arduino Mega
 serial:
-  port:      "/dev/ttyACM0"
-  baudrate:  115200
-  timeout_s: 1.0
+  port:       "/dev/ttyACM0"    # USB serial port
+  baudrate:   115200             # Serial baud rate
+  timeout_s:  1.0                # Read timeout in seconds
 
-# Polling for serial sensors
+# Ultrasonic sensor polling
 sensor_read:
-  num_sensors: 8
-  interval_s:  0.2
+  num_sensors: 8                 # Total HC-SR04 sensors
+  interval_s:  0.2               # Poll interval in seconds
   labels:      ["F","FR","R","BR","B","BL","L","FL"]
 
-# Grid → sensor index map
+# Map each 3×3 grid cell to a sensor index
 sensor_map:
   - [7, 0, 1]
   - [6, null, 2]
   - [5, 4, 3]
 
-# Braitenberg parameters
+# Braitenberg behavior parameters
 braitenberg:
-  base_speed:      50
+  base_speed:      50            # Base PWM duty for motors (%)
   weights_left:   [ -0.5, -0.3,  0.0,  0.3,  0.5,  0.3,  0.0, -0.3 ]
   weights_right:  [  0.5,  0.3,  0.0, -0.3, -0.5, -0.3,  0.0,  0.3 ]
 
+# Control algorithm parameters
 control:
-  proximity_limit_cm: 50.0
+  proximity_limit_cm:     40.0    # Distance threshold to trigger avoid (cm)
+  critical_limit_cm:      10.0    # Distance to stop immediately (cm)
+  smoothing_alpha:        0.15    # Sensor smoothing factor (0 = instant, 1 = max smoothing)
+  hysteresis_cm:          5.0     # Hysteresis margin around the threshold (cm)
+  max_acceleration:      100.0    # Max PWM change per second for ramping
 
+# Camera settings
 camera:
-  rotation:   90
-  format:     "XRGB8888"
-  resolution: [640, 480]
-  framerate:  30
+  rotation:   90                # Physical rotation of camera (0,90,180,270)
+  format:     "XRGB8888"       # Libcamera output format
+  resolution: [640, 480]        # Frame size (width, height)
+  framerate:  30                # Capture FPS
+
+# Logging level
+logging:
+  level:      "INFO"           # DEBUG, INFO, WARNING, ERROR, CRITICAL
 ```
 
-After changes, restart the service:
+After editing, restart the service:
 
 ```bash
-sudo systemctl restart start.service
+sudo systemctl restart fish.service
 ```
-
+```
 ---
 
 ## File Structure
