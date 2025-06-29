@@ -265,7 +265,6 @@ code/
 │   └── mega.ino          # Arduino sketch for ultrasonic sensors
 
 install.sh                # Unified installer script for contour/yolo
-install.service           # Legacy service example (not required)
 LICENSE                   # MIT License
 README.md                 # This documentation
 ```
