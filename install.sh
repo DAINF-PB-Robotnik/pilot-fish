@@ -1,39 +1,48 @@
 #!/usr/bin/env bash
-#
-# install.sh
-# Pilot-Fish Unified Installer (contour or yolo mode)
+# install.sh - Pilot-Fish Unified Installer (contour or yolo mode)
 #
 # This script sets up everything you need:
 #   1. Installs system packages
 #   2. Creates a dedicated Python virtualenv
 #   3. Installs Python dependencies
 #   4. Generates and enables a systemd service (fish.service)
+#   5. Optionally generates requirements.txt if missing or on request
 #
-# Usage: sudo ./install.sh <contour|yolo>
-# Example: sudo ./install.sh contour
+# Usage:
+#   sudo ./install.sh <contour|yolo> [generate-requirements]
+# Example:
+#   sudo ./install.sh contour
+#   sudo ./install.sh yolo generate-requirements
 
 set -euo pipefail
 
 ### Helper functions ###
-log()   { echo -e "\n[INFO]    $1"; }
-error() { echo -e "\n[ERROR]   $1" >&2; exit 1; }
+log()   { echo -e "\n[INFO]   $1"; }
+error() { echo -e "\n[ERROR]  $1" >&2; exit 1; }
 
-### 1) Validate input & environment ###
-if [[ $# -ne 1 ]]; then
-  echo "Usage: sudo $0 <contour|yolo>"
+### Usage check ###
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+  echo "Usage: sudo $0 <contour|yolo> [generate-requirements]"
   exit 1
 fi
-
 MODE=$1
+gen_req=false
+if [[ $# -eq 2 ]]; then
+  if [[ $2 == "generate-requirements" ]]; then
+    gen_req=true
+  else
+    error "Unknown option: $2"
+  fi
+fi
+
 if [[ "$MODE" != "contour" && "$MODE" != "yolo" ]]; then
   error "Invalid mode '$MODE'. Choose 'contour' or 'yolo'."
 fi
-
-if [[ "$EUID" -ne 0 ]]; then
-  error "This script must be run as root. Use 'sudo ./install.sh $MODE'"
+if [[ $EUID -ne 0 ]]; then
+  error "This script must be run as root. Use 'sudo $0 $MODE'"
 fi
 
-### 2) Determine users and paths ###
+### Paths and users ###
 APP_USER=${SUDO_USER:-$(whoami)}
 PROJECT_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 VENV_DIR="$PROJECT_ROOT/.venv_$MODE"
@@ -43,44 +52,56 @@ MAIN_SCRIPT="$PROJECT_ROOT/code/$MODE/main.py"
 SERVICE_NAME="fish.service"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 
-log "Mode selected: '$MODE'"
+log "Mode: $MODE"
 log "Project root: $PROJECT_ROOT"
-log "Application user: $APP_USER"
+log "User: $APP_USER"
 
-### 3) Install system packages ###
-log "Updating system package lists..."
-apt-get update -qq || error "Failed to update apt cache."
+### 1) Install system packages ###
+log "Updating apt cache..."
+apt-get update -qq || error "apt update failed"
 
-log "Installing required system packages..."
+log "Installing system dependencies..."
 apt-get install -y \
   python3-venv python3-pip python3-opencv libcamera-utils \
   libatlas-base-dev libhdf5-serial libqtgui4 libqt4-test \
-  >/dev/null || error "Failed to install system packages."
+  >/dev/null || error "System package installation failed"
 
-### 4) Verify requirements file ###
+### 2) Requirements generation check ###
 if [[ ! -f "$REQ_FILE" ]]; then
-  error "Requirements file not found: $REQ_FILE"
+  log "Requirements file missing for $MODE, generating..."
+  # Activate existing venv if availableor v in .venv_contour .venv_yolo .venv; do
+    if [[ -d "$v" ]]; then
+      source "$v/bin/activate"
+      log "Activated venv: $v"
+      break
+    fi
+  done
+  pip freeze > "$REQ_FILE" || error "Failed to generate requirements"
+  deactivate || true
+elif [[ "$gen_req" == true ]]; then
+  log "generate-requirements flag set, regenerating $REQ_FILE"
+  source "$VENV_DIR/bin/activate" 2>/dev/null || true
+  pip freeze > "$REQ_FILE" || error "Failed to regenerate requirements"
+  deactivate || true
 fi
 
-### 5) Create or recreate virtual environment ###
+### 3) Create Python virtualenv ###
 if [[ -d "$VENV_DIR" ]]; then
-  log "Removing existing virtualenv at $VENV_DIR for a clean install..."
+  log "Removing existing venv at $VENV_DIR"
   rm -rf "$VENV_DIR"
 fi
+log "Creating venv at $VENV_DIR"
+python3 -m venv "$VENV_DIR" || error "venv creation failed"
 
-log "Creating Python virtual environment at $VENV_DIR..."
-python3 -m venv "$VENV_DIR" || error "Failed to create virtual environment."
-
-### 6) Install Python dependencies ###
-log "Activating virtual environment and installing Python packages..."
-# shellcheck disable=SC1091
+### 4) Install Python dependencies ###
+log "Installing Python packages from $REQ_FILE"
 source "$VENV_DIR/bin/activate"
-pip install --upgrade pip >/dev/null || error "Failed to upgrade pip."
-pip install -r "$REQ_FILE" >/dev/null || error "Failed to install Python dependencies."
+pip install --upgrade pip >/dev/null || error "pip upgrade failed"
+pip install -r "$REQ_FILE" >/dev/null || error "pip install failed"
 deactivate
 
-### 7) Generate systemd service unit ###
-log "Writing systemd service file to $SERVICE_PATH..."
+### 5) Configure systemd service ###
+log "Writing service file to $SERVICE_PATH"
 cat > "$SERVICE_PATH" <<EOF
 [Unit]
 Description=Pilot-Fish Robot (${MODE^} mode)
@@ -102,21 +123,16 @@ WantedBy=graphical.target
 EOF
 chmod 644 "$SERVICE_PATH"
 
-### 8) Enable and start service ###
-log "Reloading systemd daemon..."
-systemctl daemon-reload || error "Failed to reload systemd."
+### 6) Enable & start service ###
+log "Reloading systemd daemon"
+systemctl daemon-reload || error "systemd reload failed"
 
-log "Enabling service '$SERVICE_NAME' to start on boot..."
-systemctl enable "$SERVICE_NAME" >/dev/null || error "Failed to enable service."
+log "Enabling $SERVICE_NAME"
+systemctl enable "$SERVICE_NAME" >/dev/null || error "service enable failed"
 
-log "Starting (or restarting) '$SERVICE_NAME'..."
-systemctl restart "$SERVICE_NAME" || error "Failed to start service."
+log "Restarting $SERVICE_NAME"
+systemctl restart "$SERVICE_NAME" || error "service start failed"
 
-### 9) Final messages ###
-log "✅ Installation complete for '$MODE' mode!"
-echo -e "\nNext steps:"
-echo "  • Check service status:   systemctl status $SERVICE_NAME"
-echo "  • View live logs:         journalctl -u $SERVICE_NAME -f"
-echo "  • Manage service manually:"
-echo "      sudo systemctl stop  $SERVICE_NAME"
-echo "      sudo systemctl start $SERVICE_NAME"
+### 7) Final output ###
+log "Installation complete for $MODE mode."
+echo "Next: systemctl status $SERVICE_NAME"
