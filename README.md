@@ -226,7 +226,6 @@ After editing, restart the service:
 ```bash
 sudo systemctl restart fish.service
 ```
-```
 ---
 
 ## File Structure
