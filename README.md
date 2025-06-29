@@ -289,7 +289,19 @@ Open windows **MAIN** (with overlays) and **BINARY** (mask).
 sudo systemctl start fish.service
 sudo journalctl -f -u fish.service
 ```
+### Requirements Generation
 
+If you ever need to (re)generate the `requirements.txt` for your chosen mode, run:
+
+```bash
+sudo ./install.sh contour generate-requirements
+```
+**— OR —**
+```bash
+sudo ./install.sh yolo generate-requirements
+```
+
+This will activate any existing venv, dump its `pip freeze` into `code/<mode>/requirements.txt`, and then exit.
 ---
 
 ## Photo Dataset
