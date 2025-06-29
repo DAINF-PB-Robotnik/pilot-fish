@@ -300,8 +300,9 @@ sudo ./install.sh contour generate-requirements
 ```bash
 sudo ./install.sh yolo generate-requirements
 ```
-
 This will activate any existing venv, dump its `pip freeze` into `code/<mode>/requirements.txt`, and then exit.
+
+
 ---
 
 ## Photo Dataset
